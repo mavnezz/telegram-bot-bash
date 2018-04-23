@@ -3,7 +3,7 @@
 
 # This file is public domain in the USA and all free countries.
 # Elsewhere, consider it to be WTFPLv2. (wtfpl.net/txt/copying)
-
+			
 if [ "$1" = "source" ];then
 	# Place the token in the token file
 	TOKEN=$(cat token)
@@ -48,44 +48,184 @@ else
 		fi &
 	fi
 	case $MESSAGE in
-		'/question')
-			startproc "./question"
-			;;
-		'/info')
-			send_markdown_message "${CHAT[ID]}" "This is bashbot, the *Telegram* bot written entirely in *bash*."
-			;;
-		'/start')
-			send_action "${CHAT[ID]}" "typing"
-			send_markdown_message "${CHAT[ID]}" "This is bashbot, the Telegram bot written entirely in bash.
-It features background tasks and interactive chats, and can serve as an interface for CLI programs.
-It currently can send, recieve and forward messages, custom keyboards, photos, audio, voice, documents, locations and video files.
-*Available commands*:
-*• /start*: _Start bot and get this message_.
-*• /info*: _Get shorter info message about this bot_.
-*• /question*: _Start interactive chat_.
-*• /cancel*: _Cancel any currently running interactive chats_.
-*• /kickme*: _You will be autokicked from the chat_.
-*• /leavechat*: _The bot will leave the group with this command _.
-Written by Drew (@topkecleon) and Daniil Gentili (@danogentili).
-Get the code in my [GitHub](http://github.com/topkecleon/telegram-bot-bash)
-"
-			;;
+		########################################################################
+		######## bittrex
+		########################################################################	
+
+		'/bittrex')
+			timestamp=$(date +%s)			
+			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+			DIR="$DIR/antispam/"
+
+			filestamp=$(stat -c %Y "$DIR/${CHAT[ID]}_bittrex.csv")
+			if [ -z "$filestamp" ]; then
+				filestamp=1024465892
+			fi
 			
-		'/leavechat')
-			send_markdown_message "${CHAT[ID]}" "*LEAVING CHAT...*"
-   			leave_chat "${CHAT[ID]}"
-     			;;
-     			
-     		'/kickme')
-     			kick_chat_member "${CHAT[ID]}" "${USER[ID]}"
-     			unban_chat_member "${CHAT[ID]}" "${USER[ID]}"
-     			;;
-     			
-		'/cancel')
-			if tmux ls | grep -q $copname; then killproc && send_message "${CHAT[ID]}" "Command canceled.";else send_message "${CHAT[ID]}" "No command is currently running.";fi
+			diff=$(($timestamp - $filestamp))
+			
+			if [ $diff -gt 300 ]; then		
+				send_action "${CHAT[ID]}" "typing"
+				btc=$(curl -s https://bittrex.com/api/v1.1/public/getticker?market=USDT-BTC | jq '.["result"]["Last"]' | awk '{ print sprintf("%.2f", $1); }')
+					
+				high=$(curl -s https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-SHIFT | jq '.["result"][]["High"]')
+				low=$(curl -s https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-SHIFT | jq '.["result"][]["Low"]')
+				last=$(curl -s https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-SHIFT | jq '.["result"][]["Last"]')
+				volume=$(curl -s https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-SHIFT | jq '.["result"][]["Volume"]'| awk '{ print sprintf("%.2f", $1); }')
+				basevolume=$(curl -s https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-SHIFT | jq '.["result"][]["BaseVolume"]' | awk '{ print sprintf("%.2f", $1); }')
+				prevday=$(curl -s https://bittrex.com/api/v1.1/public/getmarketsummary?market=BTC-SHIFT | jq '.["result"][]["PrevDay"]')
+				percent_change_24h=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].percent_change_24h" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+				
+				shift_dollar=$(echo "$btc * $last" | bc)
+				shift_dollar=$(printf %.3f $(echo "$shift_dollar" | bc -l))
+				change=$(echo "scale=3; $last / $prevday" | bc)
+				
+									
+				send_markdown_message "${CHAT[ID]}"	"*Bittrex: $last BTC | $shift_dollar$ *
+*Vol:* $volume SHIFT | $basevolume BTC
+*Low:* $low | *High:* $high
+*24h* change: $percent_change_24h%
+"
+				echo $timestamp > "$DIR/${CHAT[ID]}_bittrex.csv"
+			fi
 			;;
+
+		########################################################################
+		######## votingguide
+		########################################################################			
+		'/votingguide')
+			timestamp=$(date +%s)			
+			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+			DIR="$DIR/antispam/"
+
+			filestamp=$(stat -c %Y "$DIR/${CHAT[ID]}_votingguide.csv")
+			if [ -z "$filestamp" ]; then
+				filestamp=1024465892
+			fi
+			
+			diff=$(($timestamp - $filestamp))
+			
+			if [ $diff -gt 300 ]; then		
+				send_action "${CHAT[ID]}" "typing"
+				send_markdown_message "${CHAT[ID]}" "*Quickstart guide for voting mechanism* 
+• http://telegra.ph/Quickstart-Guide-Voting-in-Shift-02-10"
+				echo $timestamp > "$DIR/${CHAT[ID]}_votingguide.csv"
+			fi
+		;;
+		
+		########################################################################
+		######## nanoguide
+		########################################################################
+		'/nanoguide')
+			timestamp=$(date +%s)			
+			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+			DIR="$DIR/antispam/"
+
+			filestamp=$(stat -c %Y "$DIR/${CHAT[ID]}_nanoguide.csv")
+			if [ -z "$filestamp" ]; then
+				filestamp=1024465892
+			fi
+			
+			diff=$(($timestamp - $filestamp))
+			
+			if [ $diff -gt 300 ]; then		
+				send_action "${CHAT[ID]}" "typing"
+				send_markdown_message "${CHAT[ID]}" "*Quickstart guide for nano wallet* 
+• http://telegra.ph/Quickstart-Guide-Instructions-for-the-Nano-wallet-02-10"
+				echo $timestamp > "$DIR/${CHAT[ID]}_nanoguide.csv"
+			fi
+		;;
+		
+		########################################################################
+		######## start
+		########################################################################		
+		'/start')
+			timestamp=$(date +%s)			
+			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+			DIR="$DIR/antispam/"
+
+			filestamp=$(stat -c %Y "$DIR/${CHAT[ID]}_start.csv")
+			if [ -z "$filestamp" ]; then
+				filestamp=1024465892
+			fi
+			
+			diff=$(($timestamp - $filestamp))
+			
+			if [ $diff -gt 300 ]; then			
+				send_action "${CHAT[ID]}" "typing"
+				send_markdown_message "${CHAT[ID]}" "This is mavBOT, the Telegram bot for shift coin project.
+										*Available commands*:
+										*• /start*: _Start bot and get this message_.
+										*• /bittrex*: _Get shift data from bittrex_.
+										*• /cmc*: _Get shift data from Coinmarketcap_.
+										*• /votingguide*: _Quickstart guide for voting mechanism_.
+										*• /nanoguide*: _Quickstart guide for nano wallet_.
+										"
+				echo $timestamp > "$DIR/${CHAT[ID]}_start.csv"
+			fi
+		;;
+     			
+		########################################################################
+		######## cmc
+		########################################################################				
+		'/cmc')
+			timestamp=$(date +%s)			
+			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+			DIR="$DIR/antispam/"
+
+			filestamp=$(stat -c %Y "$DIR/${CHAT[ID]}_cmc.csv")
+			if [ -z "$filestamp" ]; then
+				filestamp=1024465892
+			fi
+			
+			diff=$(($timestamp - $filestamp))
+			
+			if [ $diff -gt 300 ]; then		
+				send_action "${CHAT[ID]}" "typing"
+				#if tmux ls | grep -q $copname; then killproc && send_message "${CHAT[ID]}" "Command canceled.";else send_message "${CHAT[ID]}" "No command is currently running.";fi
+				price_usd=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].price_usd" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+				price_btc=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].price_btc" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+				rank=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].rank" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+				percent_change_24h=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].percent_change_24h" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+				percent_change_7d=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].percent_change_7d" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+
+				price_usd=$(printf %.3f $(echo "$price_usd" | bc -l))	
+				send_markdown_message "${CHAT[ID]}"	"*CMC: $price_btc BTC | $price_usd$ *
+*Rank:* $rank
+*24h*: $percent_change_24h% | *7d*: $percent_change_7d%
+"
+				echo $timestamp > "$DIR/${CHAT[ID]}_cmc.csv"
+			fi
+		;;
+			
+			
+		########################################################################
+		######## all messages
+		########################################################################			
 		*)
-			if tmux ls | grep -v send | grep -q $copname;then inproc; else send_message "${CHAT[ID]}" "$MESSAGE" "safe";fi
-			;;
+			timestamp=$(date +%s)
+			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+			filestamp=$(stat -c %Y "$DIR/cmc_timestamp.csv")
+			diff=$(($timestamp - $filestamp))
+
+			if [ $diff -gt 21600 ]; then
+			
+							send_action "${CHAT[ID]}" "typing"
+							#if tmux ls | grep -q $copname; then killproc && send_message "${CHAT[ID]}" "Command canceled.";else send_message "${CHAT[ID]}" "No command is currently running.";fi
+							price_usd=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].price_usd" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+							price_btc=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].price_btc" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+							rank=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].rank" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+							percent_change_24h=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].percent_change_24h" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+							percent_change_7d=$(curl -s https://api.coinmarketcap.com/v1/ticker/shift/ | jq ".[0].percent_change_7d" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+
+							price_usd=$(printf %.3f $(echo "$price_usd" | bc -l))	
+			send_markdown_message "${CHAT[ID]}"	"*CMC: $price_btc BTC | $price_usd$ *
+*Rank:* $rank
+*24h*: $percent_change_24h% | *7d*: $percent_change_7d%
+"			
+				echo $timestamp > "$DIR/cmc_timestamp.csv"
+			fi
+		;;
 	esac
 fi
