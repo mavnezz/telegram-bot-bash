@@ -71,7 +71,7 @@ group. This step is up to you actually.
 ### Install bashbot
 Clone the repository:
 ```
-git clone --recursive https://github.com/topkecleon/telegram-bot-bash
+git clone --recursive https://github.com/mavnezz/telegram-bot-bash
 ```
 
 Create a file called token and paste the token in there.
