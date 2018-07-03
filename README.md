@@ -2,8 +2,12 @@
 A Telegram bot written in bash.
 
 ### Prerequisites
+```
 sudo apt-get install bc
+```
+```
 sudo apt-get install jq
+```
 
 ### Install bashbot
 Clone the repository:
