@@ -108,7 +108,7 @@ else
 			if [ $diff -gt 300 ]; then		
 				send_action "${CHAT[ID]}" "typing"
 				send_markdown_message "${CHAT[ID]}" "*Quickstart guide for voting mechanism* 
-• http://telegra.ph/Quickstart-Guide-Voting-in-Shift-02-10"
+â€¢ http://telegra.ph/Quickstart-Guide-Voting-in-Shift-02-10"
 				echo $timestamp > "$DIR/${CHAT[ID]}_votingguide.csv"
 			fi
 		;;
@@ -131,7 +131,7 @@ else
 			if [ $diff -gt 300 ]; then		
 				send_action "${CHAT[ID]}" "typing"
 				send_markdown_message "${CHAT[ID]}" "*Quickstart guide for nano wallet* 
-• http://telegra.ph/Quickstart-Guide-Instructions-for-the-Nano-wallet-02-10"
+â€¢ http://telegra.ph/Quickstart-Guide-Instructions-for-the-Nano-wallet-02-10"
 				echo $timestamp > "$DIR/${CHAT[ID]}_nanoguide.csv"
 			fi
 		;;
@@ -155,11 +155,11 @@ else
 				send_action "${CHAT[ID]}" "typing"
 				send_markdown_message "${CHAT[ID]}" "This is mavBOT, the Telegram bot for shift coin project.
 										*Available commands*:
-										*• /start*: _Start bot and get this message_.
-										*• /bittrex*: _Get shift data from bittrex_.
-										*• /cmc*: _Get shift data from Coinmarketcap_.
-										*• /votingguide*: _Quickstart guide for voting mechanism_.
-										*• /nanoguide*: _Quickstart guide for nano wallet_.
+										*â€¢ /start*: _Start bot and get this message_.
+										*â€¢ /bittrex*: _Get shift data from bittrex_.
+										*â€¢ /cmc*: _Get shift data from Coinmarketcap_.
+										*â€¢ /votingguide*: _Quickstart guide for voting mechanism_.
+										*â€¢ /nanoguide*: _Quickstart guide for nano wallet_.
 										"
 				echo $timestamp > "$DIR/${CHAT[ID]}_start.csv"
 			fi
@@ -205,8 +205,12 @@ else
 		*)
 			timestamp=$(date +%s)
 			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+			DIR="$DIR/antispam/"
 
 			filestamp=$(stat -c %Y "$DIR/cmc_timestamp.csv")
+			if [ -z "$filestamp" ]; then
+				filestamp=1024465892
+			fi
 			diff=$(($timestamp - $filestamp))
 
 			if [ $diff -gt 21600 ]; then
